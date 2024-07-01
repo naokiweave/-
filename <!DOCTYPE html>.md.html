@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI制度理解度診断アプリ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .app {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 200px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .score {
+            margin: 20px 0;
+        }
+        .weak-point {
+            color: #FF3B30;
+        }
+        #quiz-container {
+            display: none;
+        }
+        #quiz-container p {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div id="home-screen">
+            <h1>AI制度理解度診断</h1>
+            <button onclick="startQuiz()">クイズを始める</button>
+            <div class="score">
+                <p>最新スコア: 8/10</p>
+                <p class="weak-point">苦手分野: 知的財産権</p>
+            </div>
+            <button onclick="alert('学習セクションは開発中です')">学習セクション</button>
+            <button onclick="alert('プロフィールは開発中です')">プロフィール</button>
+        </div>
+        <div id="quiz-container">
+            <h2>問題 <span id="question-number">1</span>/5</h2>
+            <p id="question-text"></p>
+            <div id="answers"></div>
+            <p id="feedback"></p>
+            <button id="next-button" style="display:none;" onclick="nextQuestion()">次の問題</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "日本のAI制度に関する基本的なアプローチは何ですか？",
+                answers: [
+                    "厳格な法的規制のみ",
+                    "ソフトローを最大限活用しつつ、必要に応じて法的規制を検討",
+                    "完全な自由放任",
+                    "EUのAI法をそのまま採用"
+                ],
+                correct: 1
+            },
+            {
+                question: "日本のAI事業者ガイドラインの基礎となった国際的な取り組みは何ですか？",
+                answers: [
+                    "EU AI法",
+                    "米国大統領令",
+                    "広島AIプロセス",
+                    "中国のAI規制"
+                ],
+                correct: 2
+            },
+            {
+                question: "日本のAI制度において、「影響大・高リスクのAI開発者」に対する考え方として正しいものは？",
+                answers: [
+                    "ソフトローのみで対応",
+                    "厳格な事前許可制を導入",
+                    "安全・安心の観点から、ソフトローを補完する法制度の要否を検討",
+                    "開発の自由を完全に保証"
+                ],
+                correct: 2
+            },
+            {
+                question: "AIが悪用される可能性が高い場合、日本政府の対応として想定されているのは？",
+                answers: [
+                    "即時の開発禁止",
+                    "調査・公表、注意喚起、必要に応じて改善命令・実名公表",
+                    "開発者の逮捕",
+                    "対応しない"
+                ],
+                correct: 1
+            },
+            {
+                question: "日本のAI制度において、知的財産権との関係でどのようなアプローチが検討されていますか？",
+                answers: [
+                    "AIの利用を完全に禁止",
+                    "知的財産権を無視してAI開発を推進",
+                    "法、技術、契約を適切に組み合わせたアジャイルなアプローチ",
+                    "全ての知的財産権をAIに帰属させる"
+                ],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('question-text').textContent = question.question;
+            const answersDiv = document.getElementById('answers');
+            answersDiv.innerHTML = '';
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(index);
+                answersDiv.appendChild(button);
+            });
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('next-button').style.display = 'none';
+        }
+
+        function checkAnswer(answerIndex) {
+            const question = questions[currentQuestion];
+            const feedbackElement = document.getElementById('feedback');
+            if (answerIndex === question.correct) {
+                feedbackElement.textContent = '正解です！';
+                score++;
+            } else {
+                feedbackElement.textContent = `不正解です。正解は "${question.answers[question.correct]}" でした。`;
+            }
+            document.getElementById('next-button').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = `
+                <h2>クイズ完了！</h2>
+                <p>あなたのスコア: ${score}/${questions.length}</p>
+                <button onclick="location.reload()">もう一度挑戦</button>
+            `;
+        }
+    </script>
+</body>
+</html>
